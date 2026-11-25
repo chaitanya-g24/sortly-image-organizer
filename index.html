@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101114">
+<title>Sortly — Image Organizer</title>
+<style>
+:root{--bg:#101114;--panel:#181a20;--panel2:#20232b;--line:#2d3039;--text:#f3f4f6;--muted:#9da3b1;--accent:#a6f36b;--accent2:#d2ffad;--danger:#ff7373}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{max-width:1440px;margin:auto;padding:26px 30px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:38px;height:38px;border-radius:12px;background:var(--accent);display:grid;place-items:center;color:#151a10;font-size:21px;font-weight:900}
+h1{font-size:19px;margin:0;letter-spacing:-.5px}.sub{color:var(--muted);font-size:12px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 14px;border-radius:9px;font-weight:600}.btn:hover{border-color:#626979}.btn.primary{background:var(--accent);border-color:var(--accent);color:#17200f}.btn:disabled{opacity:.4;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:20px}
+.sidebar,.main{background:var(--panel);border:1px solid var(--line);border-radius:15px}.sidebar{padding:17px;height:fit-content}.side-title{font-size:11px;letter-spacing:1.1px;color:var(--muted);font-weight:800;margin:5px 0 12px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:8px;color:#d7d9df;cursor:pointer;margin:3px 0}.nav:hover,.nav.active{background:var(--panel2);color:var(--accent2)}.count{font-size:11px;color:var(--muted)}
+.folder-head{display:flex;align-items:center;justify-content:space-between;margin-top:27px}.plus{border:0;background:transparent;color:var(--accent);font-size:20px}
+.folder{display:flex;align-items:center;gap:9px;padding:8px 10px;color:#c6cad2;border-radius:8px;cursor:pointer}.folder:hover,.folder.active{background:var(--panel2)}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.tip{margin-top:25px;padding:12px;background:#20271d;border:1px solid #35452c;border-radius:10px;color:#c9d8bd;font-size:12px}
+.main{padding:20px;min-height:650px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.heading h2{font-size:20px;margin:0 0 2px}.heading p{color:var(--muted);margin:0;font-size:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap}.search{background:#111318;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:9px 12px;width:190px;outline:none}.select{background:#111318;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:9px}
+.drop{border:1px dashed #505663;background:#14161b;border-radius:12px;padding:23px;text-align:center;margin-bottom:17px;transition:.15s}.drop.over{border-color:var(--accent);background:#1b2417}.drop strong{display:block;font-size:14px}.drop span{color:var(--muted);font-size:12px}.drop button{margin-top:9px}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:12px;margin:5px 0 14px}.stats b{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.tile{position:relative;background:#111318;border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0}.tile.selected{border:2px solid var(--accent)}.thumb{height:137px;background:#252832;display:grid;place-items:center;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.check{position:absolute;top:8px;left:8px;width:19px;height:19px;accent-color:var(--accent)}
+.meta{padding:9px}.filename{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.details{color:var(--muted);font-size:10px;margin-top:3px}.tag{display:inline-block;margin-top:7px;background:#26331f;color:var(--accent2);font-size:10px;padding:2px 7px;border-radius:20px}
+.empty{padding:65px 20px;text-align:center;color:var(--muted)}.empty .symbol{font-size:38px;margin-bottom:8px}.empty h3{color:var(--text);margin:0 0 5px}
+.selectionbar{display:none;position:sticky;bottom:14px;margin:20px auto 0;width:fit-content;max-width:100%;padding:10px 12px;background:#272d23;border:1px solid #536a43;border-radius:12px;box-shadow:0 10px 30px #0008;align-items:center;gap:10px;flex-wrap:wrap}.selectionbar.show{display:flex}.selectionbar span{font-size:12px;color:#e2ecd9}
+input[type=file]{display:none}
+footer{color:#747b88;text-align:center;font-size:11px;margin-top:22px}
+@media(max-width:760px){.app{padding:17px 13px}.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:13px}.search{width:145px}header{align-items:flex-start}.actions .btn{padding:8px 10px}.thumb{height:120px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div class="logo">S</div><div><h1>sortly</h1><div class="sub">A simple, private image workspace</div></div></div>
+ <div class="actions"><button class="btn" id="clearBtn">Clear workspace</button><button class="btn primary" id="exportBtn" disabled>↓ Export organized ZIP</button></div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+ <div class="side-title">LIBRARY</div>
+ <div class="nav active" data-filter="all">▦ All images <span class="count" id="allCount">0</span></div>
+ <div class="nav" data-filter="unassigned">◷ Unsorted <span class="count" id="unCount">0</span></div>
+ <div class="folder-head"><div class="side-title">COLLECTIONS</div><button class="plus" id="addFolder" title="New collection">+</button></div>
+ <div id="folders"></div>
+ <div class="tip">🔒 Your images stay in your browser. Nothing is uploaded to a server.</div>
+</aside>
+<main class="main">
+ <div class="toolbar"><div class="heading"><h2 id="viewTitle">All images</h2><p id="viewDesc">Bring your images together and organize them your way.</p></div>
+ <div class="controls"><input class="search" id="search" placeholder="Search images…"><select class="select" id="sort"><option value="name">Name (A–Z)</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="largest">Largest first</option><option value="smallest">Smallest first</option></select></div></div>
+ <section class="drop" id="drop"><strong>Drop a folder or images here to get started</strong><span>JPG, PNG, GIF, WebP, SVG and other browser-supported image files</span><br><button class="btn primary" id="chooseFolderBtn">Choose entire folder</button> <button class="btn" id="chooseBtn">Choose images</button><input id="fileInput" type="file" accept="image/*" multiple><input id="folderInput" type="file" accept="image/*" webkitdirectory directory multiple></section>
+ <div class="stats"><span><b id="shownCount">0</b> shown</span><span><b id="totalSize">0 B</b> total size</span><span id="selectionCount">No selection</span></div>
+ <div class="grid" id="grid"></div>
+ <div class="empty" id="empty"><div class="symbol">▧</div><h3>Your image library is empty</h3><div>Add a few images to start sorting.</div></div>
+ <div class="selectionbar" id="selectionbar"><span id="selectedLabel">0 selected</span><select class="select" id="assignSelect"><option value="">Move to collection…</option></select><button class="btn" id="assignBtn">Assign</button><button class="btn" id="removeBtn">Remove from collection</button><button class="btn" id="downloadBtn">Download selected</button><button class="btn" id="deselectBtn">Deselect</button></div>
+</main>
+</div>
+<footer>Sortly is open source · Runs locally in your browser · No account required</footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let images=[], folders=[], selected=new Set(), filter='all', nextId=1;
+const fmt=n=>{if(n<1024)return n+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';return(n/1048576).toFixed(1)+' MB'};
+const safeName=s=>s.replace(/[\\/:*?"<>|]/g,'_');
+function addFiles(files){[...files].filter(f=>f.type.startsWith('image/')).forEach(file=>{images.push({id:nextId++,file,url:URL.createObjectURL(file),folder:null,name:file.name,date:file.lastModified,size:file.size,sourcePath:file.webkitRelativePath||file.name})});render()}
+function visible(){let list=images.filter(x=>filter==='all'||(filter==='unassigned'? !x.folder:x.folder===filter));let q=$('search').value.toLowerCase();list=list.filter(x=>x.name.toLowerCase().includes(q));let s=$('sort').value;return list.sort((a,b)=>s==='name'?a.name.localeCompare(b.name):s==='newest'?b.date-a.date:s==='oldest'?a.date-b.date:s==='largest'?b.size-a.size:a.size-b.size)}
+function render(){let list=visible();$('grid').innerHTML='';$('empty').style.display=list.length?'none':'block';$('shownCount').textContent=list.length;$('allCount').textContent=images.length;$('unCount').textContent=images.filter(x=>!x.folder).length;$('totalSize').textContent=fmt(images.reduce((a,x)=>a+x.size,0));$('exportBtn').disabled=!images.length;
+ $('viewTitle').textContent=filter==='all'?'All images':filter==='unassigned'?'Unsorted':folders.find(f=>f.id===filter)?.name||'Collection';$('viewDesc').textContent=filter==='all'?'Bring your images together and organize them your way.':filter==='unassigned'?'Images that have not been assigned to a collection.':'Images in this collection.';
+ list.forEach(x=>{let el=document.createElement('article');el.className='tile'+(selected.has(x.id)?' selected':'');let cb=document.createElement('input');cb.type='checkbox';cb.className='check';cb.checked=selected.has(x.id);cb.onchange=()=>{cb.checked?selected.add(x.id):selected.delete(x.id);render()};let thumb=document.createElement('div');thumb.className='thumb';let im=document.createElement('img');im.src=x.url;im.alt=x.name;thumb.append(im);let meta=document.createElement('div');meta.className='meta';let name=document.createElement('div');name.className='filename';name.textContent=x.name;name.title=x.name;let detail=document.createElement('div');detail.className='details';detail.textContent=fmt(x.size)+' · '+new Date(x.date).toLocaleDateString();meta.append(name,detail);if(x.folder){let tag=document.createElement('span');tag.className='tag';tag.textContent=folders.find(f=>f.id===x.folder)?.name||'';meta.append(tag)}el.append(cb,thumb,meta);$('grid').append(el)});
+ $('folders').innerHTML='';folders.forEach(f=>{let d=document.createElement('div');d.className='folder'+(filter===f.id?' active':'');d.innerHTML='<span class="dot"></span>';let n=document.createElement('span');n.textContent=f.name;let c=document.createElement('span');c.className='count';c.textContent=images.filter(x=>x.folder===f.id).length;d.append(n,c);d.onclick=()=>{filter=f.id;document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));render()};$('folders').append(d)});
+ $('assignSelect').innerHTML='<option value="">Move to collection…</option>';folders.forEach(f=>{let o=document.createElement('option');o.value=f.id;o.textContent=f.name;$('assignSelect').append(o)});
+ $('selectionbar').classList.toggle('show',selected.size>0);$('selectedLabel').textContent=selected.size+' selected';$('selectionCount').textContent=selected.size?selected.size+' selected':'No selection';
+}
+function assign(id){images.forEach(x=>{if(selected.has(x.id))x.folder=id});selected.clear();render()}
+$('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>addFiles(e.target.files);$('chooseFolderBtn').onclick=()=>$('folderInput').click();$('folderInput').onchange=e=>{addFiles(e.target.files);$('folderInput').value=''};
+$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('over')};$('drop').ondragleave=()=>$('drop').classList.remove('over');$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('over');addFiles(e.dataTransfer.files)};
+$('search').oninput=render;$('sort').onchange=render;
+$('addFolder').onclick=()=>{let name=prompt('Name your collection:');if(name&&name.trim()){let id='f'+Date.now();folders.push({id,name:name.trim()});filter=id;render()}};
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>{filter=n.dataset.filter;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x===n));render()});
+$('assignBtn').onclick=()=>{if($('assignSelect').value)assign($('assignSelect').value)};
+$('removeBtn').onclick=()=>{images.forEach(x=>{if(selected.has(x.id))x.folder=null});selected.clear();render()};
+$('deselectBtn').onclick=()=>{selected.clear();render()};
+$('downloadBtn').onclick=()=>images.filter(x=>selected.has(x.id)).forEach(x=>{let a=document.createElement('a');a.href=x.url;a.download=x.name;a.click()});
+$('clearBtn').onclick=()=>{if(!images.length||confirm('Remove all images from this workspace?')){images.forEach(x=>URL.revokeObjectURL(x.url));images=[];selected.clear();folders=[];filter='all';render()}};
+$('exportBtn').onclick=async()=>{if(!window.JSZip){alert('ZIP library could not load. Check your internet connection and try again.');return}let zip=new JSZip();for(let x of images){let folder=folders.find(f=>f.id===x.folder);let target=folder?safeName(folder.name):'Unsorted';zip.folder(target).file(safeName(x.name),x.file)}let blob=await zip.generateAsync({type:'blob'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sorted-images.zip';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+render();
+</script>
+</body></html>
